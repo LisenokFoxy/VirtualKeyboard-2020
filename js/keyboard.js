@@ -43,7 +43,7 @@ export default class Keyboard {
     return this;
   }
 
-  generateLayout() {
+  createLayout() {
     this.keyButtons = [];
     this.rowsOrder.forEach((row, i) => {
       const rowElement = create("div", "keyboard__row", null, this.container, [
@@ -78,8 +78,6 @@ export default class Keyboard {
     this.handleEvent({ code, type: e.type });
   };
 
-  // Ф-я обработки событий
-
   handleEvent = (e) => {
     if (e.stopPropagation) e.stopPropagation();
     const { code, type } = e;
@@ -87,7 +85,6 @@ export default class Keyboard {
     if (!keyObj) return;
     this.output.focus();
 
-    // НАЖАТИЕ КНОПКИ
     if (type.match(/keydown|mousedown/)) {
       if (!type.match(/mouse/)) e.preventDefault();
 
@@ -99,8 +96,8 @@ export default class Keyboard {
 
       if (code.match(/Control/)) this.ctrKey = true;
       if (code.match(/Alt/)) this.altKey = true;
-      if (code.match(/Control/) && this.altKey) this.switchLanguage();
-      if (code.match(/Alt/) && this.ctrKey) this.switchLanguage();
+      if (code.match(/Control/) && this.altKey) this.changeLanguage();
+      if (code.match(/Alt/) && this.ctrKey) this.changeLanguage();
 
       keyObj.div.classList.add("active");
 
@@ -113,20 +110,15 @@ export default class Keyboard {
         keyObj.div.classList.remove("active");
       }
 
-      // Определяем, какой символ мы пишем в консоль (спец или основной)
       if (!this.isCaps) {
-        // если не зажат капс, смотрим не зажат ли шифт
         this.printToOutput(keyObj, this.shiftKey ? keyObj.shift : keyObj.small);
       } else if (this.isCaps) {
-        // если зажат капс
         if (this.shiftKey) {
-          // и при этом зажат шифт - то для кнопки со спецсимволом даем верхний регистр
           this.printToOutput(
             keyObj,
             keyObj.sub.innerHTML ? keyObj.shift : keyObj.small
           );
         } else {
-          // и при этом НЕ зажат шифт - то для кнопки без спецсивмола даем верхний регистр
           this.printToOutput(
             keyObj,
             !keyObj.sub.innerHTML ? keyObj.shift : keyObj.small
@@ -134,10 +126,8 @@ export default class Keyboard {
         }
       }
       this.keysPressed[keyObj.code] = keyObj;
-      // ОТЖАТИЕ КНОПКИ
     } else if (e.type.match(/keyup|mouseup/)) {
       this.resetPressedButtons(code);
-      // if (code.match(/Shift/) && !this.keysPressed[code])
       if (code.match(/Shift/)) {
         this.shiftKey = false;
         this.switchUpperCase(false);
@@ -177,63 +167,41 @@ export default class Keyboard {
   };
 
   switchUpperCase(isTrue) {
-    // Флаг - чтобы понимать, мы поднимаем регистр или опускаем
     if (isTrue) {
-      // Мы записывали наши кнопки в keyButtons, теперь можем легко итерироваться по ним
       this.keyButtons.forEach((button) => {
-        // Если у кнопки есть спецсивол - мы должны переопределить стили
         if (button.sub) {
-          // Если только это не капс, тогда поднимаем у спецсимволов
           if (this.shiftKey) {
             button.sub.classList.add("sub-active");
             button.letter.classList.add("sub-inactive");
           }
         }
-        // Не трогаем функциональные кнопки
-        // И если капс, и не шифт, и именно наша кнопка без спецсимвола
         if (
           !button.isFnKey &&
           this.isCaps &&
           !this.shiftKey &&
           !button.sub.innerHTML
         ) {
-          // тогда поднимаем регистр основного символа letter
           button.letter.innerHTML = button.shift;
-          // Если капс и зажат шифт
         } else if (!button.isFnKey && this.isCaps && this.shiftKey) {
-          // тогда опускаем регистр для основного симовла letter
           button.letter.innerHTML = button.small;
-          // а если это просто шифт - тогда поднимаем регистр у основного символа
-          // только у кнопок, без спецсимвола --- там уже выше отработал код для них
         } else if (!button.isFnKey && !button.sub.innerHTML) {
           button.letter.innerHTML = button.shift;
         }
       });
     } else {
-      // опускаем регистр в обратном порядке
       this.keyButtons.forEach((button) => {
-        // Не трогаем функциональные кнопки
-        // Если есть спецсимвол
         if (button.sub.innerHTML && !button.isFnKey) {
-          // то возвращаем в исходное
           button.sub.classList.remove("sub-active");
           button.letter.classList.remove("sub-inactive");
-          // если не зажат капс
           if (!this.isCaps) {
-            // то просто возвращаем основным символам нижний регистр
             button.letter.innerHTML = button.small;
           } else if (!this.isCaps) {
-            // если капс зажат - то возвращаем верхний регистр
             button.letter.innerHTML = button.shift;
           }
-          // если это кнопка без спецсимвола (снова не трогаем функциональные)
         } else if (!button.isFnKey) {
-          // то если зажат капс
           if (this.isCaps) {
-            // возвращаем верхний регистр
             button.letter.innerHTML = button.shift;
           } else {
-            // если отжат капс - возвращаем нижний регистр
             button.letter.innerHTML = button.small;
           }
         }
@@ -241,7 +209,7 @@ export default class Keyboard {
     }
   }
 
-  switchLanguage = () => {
+  changeLanguage = () => {
     const langAbbr = Object.keys(language);
     let langIdx = langAbbr.indexOf(this.container.dataset.language);
     this.keyBase =

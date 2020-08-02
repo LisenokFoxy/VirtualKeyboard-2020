@@ -3,7 +3,7 @@ export default function create(elem, classNames, child, parent, ...dataAttr) {
   try {
     element = document.createElement(elem);
   } catch (error) {
-    throw new Error("Unable to create HTMLElement! Give a proper tag name");
+    throw new Error("Невозможно создать HTMLElement");
   }
 
   if (classNames) element.classList.add(...classNames.split(" "));

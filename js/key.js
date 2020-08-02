@@ -24,6 +24,6 @@ export default class Key {
       null,
       ["code", this.code],
       this.isFnKey ? ["fn", "true"] : ["fn", "false"]
-    ); // мы забыли этот атрибут добавить )) он нужен, чтобы в разметке стилизовать функциональные клавиши отдельно
+    );
   }
 }
