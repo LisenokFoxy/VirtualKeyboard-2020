@@ -82,4 +82,4 @@ const rowsOrder = [
 
 const lang = get("kbLang", '"ru"');
 
-new Keyboard(rowsOrder).init(lang).generateLayout();
+new Keyboard(rowsOrder).init(lang).createLayout();
