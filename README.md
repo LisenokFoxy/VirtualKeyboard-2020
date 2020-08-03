@@ -1,2 +1,2 @@
-# Virtual-Keyboard-2020
+# VirtualKeyboard-2020
 Virtual-Keyboard task
